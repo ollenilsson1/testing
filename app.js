@@ -186,6 +186,9 @@ function clearInput(inputs){
     })
 }
 
+//Here starts the cart
+
+
 /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
 function myFunction() {
@@ -204,4 +207,30 @@ window.onclick = function(event) {
       }
     }
   }
+}
+
+function ready() {
+  const deletebtn =document.querySelectorAll(".delete")
+  for (var i = 0; i <deletebtn.length; i++) {
+      let button = deletebtn[i]
+      button.addEventListener("click", removeItem )
+  }
+}
+
+function addToCart() {
+  const data = localStorage.getItem("cartList")
+  const parsedData = JSON.parse(data)
+  const itemContainer = document.querySelector(".cart-items")
+  Object.values(parsedData).map((item, index) => {
+    itemContainer.innerHTML += `
+      <div id="${id} class="cart-item>
+        <img class="cart_product_img" src="${imageSrc}" width="100" height="100">
+        <span class="cart_product_title">${title}</span>
+        <span class="cart_product_price">${price}</span>
+        <input class="cart-quantity-input" type="number" value="1">
+        <button class="cart_delete" type="button">REMOVE</button>
+      </div>`
+      cartItem.querySelectorAll("#delete")[0].addEventListener("click", removeItem)
+  })
+
 }
