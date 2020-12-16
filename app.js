@@ -197,33 +197,90 @@ function myFunction() {
 
 // Close the dropdown menu if the user clicks outside of it
 window.onclick = function(event) {
-  if (!event.target.matches('.dropbtn')) {
-    var dropdowns = document.getElementsByClassName("dropdown-content");
-    var i;
-    for (i = 0; i < dropdowns.length; i++) {
-      var openDropdown = dropdowns[i];
-      if (openDropdown.classList.contains('show')) {
-        openDropdown.classList.remove('show');
-      }
-    }
-  }
+
+  var cart = document.querySelector("#myDropdown");
+  // if(cart.classList.contains("show")) {
+  //   cart.classList.remove("show")
+  // }
+
+  
+
+
+
+  // if(cart.classList.contains("hide"))
+
+  // if (!event.target.matches('.dropbtn')) {
+    // var i;
+  //  for (i = 0; i < dropdowns.length; i++) {
+   //   var openDropdown = dropdowns[i];
+      // if (dropdowns.classList.contains('show')) {
+      //   dropdowns.classList.remove('show');
+      // }
+    // }
+  
 }
+
+
 
 function addToCart() {
   const data = localStorage.getItem("cartList")
   const parsedData = JSON.parse(data)
-  const itemContainer = document.querySelector(".cart-items")
+  let itemContainer = document.querySelector(".cart-items")
   Object.values(parsedData).map(item => {
     itemContainer.innerHTML += `
       <div class="cart-item>
         <img class="cart_product_img" src="">
-      <span class="cart_product_title">${item.title}</span>
-      <span class="cart_product_price">${item.price}</span>
-      <input class="cart-quantity-input" type="number" value="1">
-      <button class="cart_delete" type="button">REMOVE</button>
-  </div>`
+        <span class="cart_product_title">${item.title}</span>
+        <span class="cart_product_price">${item.price}</span>
+        <input class="cart_quantity_input" type="number" value="1">
+        <button class="cart_delete" type="button">Ta bort</button>
+      </div>`
  
   })
 }
 
 addToCart();
+ready();
+
+function ready() {
+  let removeItemButtons = document.querySelectorAll(".cart_delete")
+  for (var i=0; i<removeItemButtons.length; i++) {
+    let button = removeItemButtons[i]
+    button.addEventListener("click", removeItem)
+  }
+
+  var quantityInput = document.querySelectorAll(".cart_quantity_input")
+  for (var i=0; i<quantityInput.length; i++) {
+    var input = quantityInput[i]
+    input.addEventListener("change", quantityChanged)
+  }
+}
+
+function removeItem(event) {
+  let buttonClicked = event.target; 
+  buttonClicked.parentElement.remove()
+  updateTotal();
+}
+
+function quantityChanged(event) {
+  var input = event.target
+  if (isNaN(input.value) || input.value <= 0) {
+    input.value = 1
+  }
+  updateTotal();
+}
+
+function updateTotal() {
+  let itemDiv = document.querySelectorAll(".cart-items")[0]
+  let itemInDiv = itemDiv.querySelectorAll("cart-item")
+  const total = 0;
+  for (var i = 0; i <cartItems.length; i++) {
+    var cartItem = cartItems[i] 
+    var priceElement = cartItem.querySelectorAll("cart_product_price")[0]
+    var quantityElement = cartItem.querySelectorAll("cart_quantity_input")[0]
+    var price = parseFloat(priceElement.innerText.replace("kr", ""))
+    var quantity = quantityElement.value
+    total = total + (price * quantity)
+  }
+ // document.querySelectorAll("total-price")[0].innerText = total + "kr"
+}
