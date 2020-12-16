@@ -63,7 +63,7 @@ function deleteEditCart(event){
   }else if(targetBtn.id == EDIT ){
     editProduct(product);
   }else if(targetBtn.id == ADDTOCART ){
-    addToCart(product);
+    localStorageCart(product);
   }
 
 }
@@ -94,7 +94,7 @@ function editProduct(product){
 
 let cartItem={}
 
-function addToCart(product){
+function localStorageCart(product){
   
   let productTitle = product.querySelector(".product_title");
   let productPrice = product.querySelector(".product_price");
@@ -209,28 +209,21 @@ window.onclick = function(event) {
   }
 }
 
-function ready() {
-  const deletebtn =document.querySelectorAll(".delete")
-  for (var i = 0; i <deletebtn.length; i++) {
-      let button = deletebtn[i]
-      button.addEventListener("click", removeItem )
-  }
-}
-
 function addToCart() {
   const data = localStorage.getItem("cartList")
   const parsedData = JSON.parse(data)
   const itemContainer = document.querySelector(".cart-items")
-  Object.values(parsedData).map((item, index) => {
+  Object.values(parsedData).map(item => {
     itemContainer.innerHTML += `
-      <div id="${id} class="cart-item>
-        <img class="cart_product_img" src="${imageSrc}" width="100" height="100">
-        <span class="cart_product_title">${title}</span>
-        <span class="cart_product_price">${price}</span>
-        <input class="cart-quantity-input" type="number" value="1">
-        <button class="cart_delete" type="button">REMOVE</button>
-      </div>`
-      cartItem.querySelectorAll("#delete")[0].addEventListener("click", removeItem)
+      <div class="cart-item>
+        <img class="cart_product_img" src="">
+      <span class="cart_product_title">${item.title}</span>
+      <span class="cart_product_price">${item.price}</span>
+      <input class="cart-quantity-input" type="number" value="1">
+      <button class="cart_delete" type="button">REMOVE</button>
+  </div>`
+ 
   })
-
 }
+
+addToCart();
