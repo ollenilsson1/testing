@@ -8,9 +8,8 @@ const cartItems = document.querySelector(".cart-items")
 // Array som allt sparas i
 //PRODUCT LIST stringifyed för att local storage sa fungera
 
-let PRODUCT_LIST;
+let PRODUCT_LIST = [];
 let SHOPPING_CART = [];
-let balance = 0;
 
 //För delete och edit knappar 
 
@@ -18,8 +17,8 @@ const DELETE = "delete", EDIT = "edit", ADDTOCART = "addCartBtn";
 
 // Kollar om det finns sparad data i localstorage
 
-PRODUCT_LIST = JSON.parse(localStorage.getItem("PRODUCT_LIST")) || [];
-updateUI();
+//PRODUCT_LIST = JSON.parse(localStorage.getItem("productList")) || [];
+
 
 
 //eventlistener för knappar
@@ -27,28 +26,100 @@ updateUI();
 productDiv.addEventListener("click", deleteEditCart);
 uploadBtn.addEventListener("click" , newProduct);
 
+//api funktion för bilder
+
+
+ async function searchPhotos(e) {
+  e.preventDefault();
+  let accessKey = "zezTGXrl1WoKFEPFjbTOknYNWy0Im-5v_XUkLheIxR4";
+  let query = document.getElementById("search").value;
+  let url = "https://api.unsplash.com/photos/?client_id=" + accessKey + "&query="+query;
+  
+  // request till api
+
+  let apiArray = []
+
+  await fetch(url)
+  .then(function (data) {
+      return data.json();
+  })
+  .then(function(data) {
+      
+
+     data.map(photo => {
+         
+          let result = `${photo.urls.small}`;
+          
+          apiArray.push(result);
+           
+      });
+      
+  });
+  let randomNum = getRandom(0,9);
+  console.log(apiArray[randomNum]);
+  return apiArray[randomNum];
+  
+}  
+
+
+/* async function addToCart () {
+
+  let imgUrl = await searchPhotos();
+ let obj = {
+     imageUrl: imgUrl,
+     name: "shoer"
+ }
+
+ console.log(obj)
+} */
+
+/* // klicklyssnare
+addToCart() */
+
+// funktion som returnerar ett random nummer mellan min och max
+
+
+function getRandom (min , max){
+  return Math.floor(Math.random()*(max-min))+min;
+}   
+
 // Function för att pusha allt till array när uploadknappen är klickad
-function newProduct(e){ 
-  //e.preventDefault();
+//async
+
+let productItem = {};
+
+async function newProduct(e){ 
+  e.preventDefault();
+  console.log(e);
   //if statement för att alla fält måste vara ifyllda
 if(!addTitle.value || !addInfo.value || !addPrice.value) return;
   // spara allt i PRODUCT_LIST
   //parseInt för att få price till Number
-  let product = {
-      title : addTitle.value,
-      description : addInfo.value,
-      price : parseInt(addPrice.value)
-  }
-  PRODUCT_LIST.push(product);
+  let imgUrl = await searchPhotos(e);
+  
+      productItem.img = imgUrl;
+      productItem.title = addTitle.value;
+      productItem.description = addInfo.value;
+      productItem.price = parseInt(addPrice.value);
+  
+  PRODUCT_LIST.push(productItem);
+   console.log(productItem);
+  const localProductData = localStorage.getItem("productList");
 
-  updateUI();
+  const existingProductData = JSON.parse(localProductData);
 
-  //logra i localstorage 
+  const cleanedProductData = existingProductData ? existingProductData.concat(PRODUCT_LIST) : PRODUCT_LIST ;
 
+  localStorage.setItem("productList", JSON.stringify(cleanedProductData)); 
 
+  
   clearInput( [addTitle, addInfo, addPrice] );
 
+  location.reload();
+  
 }
+
+
 
 //delete or edit function, kollar efter vilket id som stämmer och väljer parentnode som har knappen
 
@@ -74,9 +145,11 @@ function deleteEditCart(event){
 
 //delete function för att tabort rätt product i arrayen, väljer efter id
 function deleteProduct(product){
+  PRODUCT_LIST = JSON.parse(localStorage.getItem("productList"));
   PRODUCT_LIST.splice( product.id, 1);
-
-  updateUI();
+   
+   localStorage.setItem("productList" , JSON.stringify (PRODUCT_LIST));
+   location.reload();
 }
 
 //edit function som gör att man kan ändra alla inputs och tar bort produkten man vill ändra
@@ -124,7 +197,7 @@ function localStorageCart(product){
 }
 
 
-function updateUI(){
+/* function updateUI(){
 
   
 
@@ -143,17 +216,21 @@ function updateUI(){
     
   
   
-  }
+  } */
 
 // Showproduct function
  
-function showproduct(div, title, description, price, id){
-
-    const product = `<div id = "${id}" class="product-card">
-                        <img class="product_img" src="/images/pic1.jpg" alt="painting">
-                        <h2 class="product_title">${title}</h2>
-                        <p class="product_description">${description}</p>
-                        <p class="product_price">${price}</p>
+function showproduct(){
+  
+  const productData = localStorage.getItem("productList")
+  const parsedProductData = JSON.parse(productData)
+  Object.values(parsedProductData).map((item , index) => {
+    productDiv.innerHTML += `
+                        <div id="${index}" class="product-card">
+                        <img class="product_img" src="${item.img}" alt="painting">
+                        <h2 class="product_title">${item.title}</h2>
+                        <p class="product_description">${item.description}</p>
+                        <p class="product_price">${item.price}</p>
                         <span>kr</span>
                         <button id="addCartBtn">Lägg till i varukorg</button>
                         <button id="edit">edit</button>
@@ -165,10 +242,12 @@ function showproduct(div, title, description, price, id){
                    </div>`;
   
     // afterbegin för att få senast tillagda product först               
-    const position = "afterbegin";
+    //const position = "afterbegin";
   
-    div.insertAdjacentHTML(position, product);
-  } 
+   // div.insertAdjacentHTML(position, product);
+  })
+} 
+
   
 
 function clearElement(elements){
@@ -223,4 +302,8 @@ function addToCart() {
   })
 }
 
-addToCart();
+let products = JSON.parse(localStorage.getItem("productList"))
+console.log(products)
+if(products.length>0){
+showproduct();
+}

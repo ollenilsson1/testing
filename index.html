@@ -6,8 +6,9 @@
     <title>Våran e-handel</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
-    <link rel="stylesheet" href="dropdown.css">
+    <link rel="stylesheet" type="text/scss" href="dropdown.scss">
     <script src="app.js" defer> </script>
+
 </head>
 <body>
 <div class="wrapper">
@@ -36,6 +37,8 @@
             <input id="add_title" type="text" placeholder="Titel på produkt">
             <input id="add_info" type="text" placeholder="Beskrivning">
             <input id="add_price" type="number" placeholder="Pris">
+            <input type="text" id="search" placeholder="Sök efter bild">
+            <button onclick="searchPhotos(event)">Sök</button>
     
             
     
