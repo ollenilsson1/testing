@@ -225,18 +225,26 @@ window.onclick = function(event) {
 function addToCart() {
   const data = localStorage.getItem("cartList")
   const parsedData = JSON.parse(data)
-  let itemContainer = document.querySelector(".cart-items")
+  let itemContainer = document.querySelector(".cart-items") 
+  let itemNames = cartItems.querySelectorAll(".cart_product_title")
+  for (var i = 0; i < itemNames.length; i++) {
+    if (itemNames[i].innerText == item.title) {
+      alert("Denna vara finns redan i varukorgen")
+      return
+    }
+  }
   Object.values(parsedData).map(item => {
     itemContainer.innerHTML += `
       <div class="cart-item>
         <img class="cart_product_img" src="">
         <span class="cart_product_title">${item.title}</span>
-        <span class="cart_product_price">${item.price}</span>
+        <span class="cart_product_price">${item.price}kr</span>
         <input class="cart_quantity_input" type="number" value="1">
         <button class="cart_delete" type="button">Ta bort</button>
       </div>`
  
   })
+  
 }
 
 addToCart();
@@ -256,6 +264,8 @@ function ready() {
   }
 }
 
+
+
 function removeItem(event) {
   let buttonClicked = event.target; 
   buttonClicked.parentElement.remove()
@@ -272,15 +282,17 @@ function quantityChanged(event) {
 
 function updateTotal() {
   let itemDiv = document.querySelectorAll(".cart-items")[0]
-  let itemInDiv = itemDiv.querySelectorAll("cart-item")
+  let itemsInDiv = itemDiv.querySelectorAll("cart-item")
   const total = 0;
-  for (var i = 0; i <cartItems.length; i++) {
-    var cartItem = cartItems[i] 
-    var priceElement = cartItem.querySelectorAll("cart_product_price")[0]
-    var quantityElement = cartItem.querySelectorAll("cart_quantity_input")[0]
-    var price = parseFloat(priceElement.innerText.replace("kr", ""))
+  for (var i = 0; i <itemsInDiv.length; i++) {
+    var itemInDiv = itemsInDiv[i] 
+    var priceElement = itemInDiv.querySelectorAll("cart_product_price")[0]
+    var quantityElement = itemInDiv.querySelectorAll("cart_quantity_input")[0]
+   // var price = parseFloat(priceElement.innerText.replace("kr", ""))
     var quantity = quantityElement.value
     total = total + (price * quantity)
   }
- // document.querySelectorAll("total-price")[0].innerText = total + "kr"
+  total = Math.round(total *100) /100
+  document.querySelectorAll("total-price")[0].innerHTML = total + "kr"
 }
+
