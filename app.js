@@ -1,3 +1,5 @@
+// Globala queryselectors
+
 const uploadBtn = document.querySelector("#uploadBtn");
 const addTitle = document.querySelector("#add_title");
 const addInfo = document.querySelector("#add_info");
@@ -5,8 +7,7 @@ const addPrice = document.querySelector("#add_price");
 const productDiv = document.querySelector("#products .productlist");
 const cartItems = document.querySelector(".cart-items")
 
-// Array som allt sparas i
-//PRODUCT LIST stringifyed för att local storage sa fungera
+// Arrayer som allt sparas i
 
 let PRODUCT_LIST = [];
 let SHOPPING_CART = [];
@@ -14,12 +15,6 @@ let SHOPPING_CART = [];
 //För delete och edit knappar 
 
 const DELETE = "delete", EDIT = "edit", ADDTOCART = "addCartBtn";
-
-// Kollar om det finns sparad data i localstorage
-
-//PRODUCT_LIST = JSON.parse(localStorage.getItem("productList")) || [];
-
-
 
 //eventlistener för knappar
 
@@ -35,7 +30,7 @@ uploadBtn.addEventListener("click" , newProduct);
   let query = document.getElementById("search").value;
   let url = "https://api.unsplash.com/photos/?client_id=" + accessKey + "&query="+query;
   
-  // request till api
+  // request till api som returnerar json data
 
   let apiArray = []
 
@@ -45,7 +40,7 @@ uploadBtn.addEventListener("click" , newProduct);
   })
   .then(function(data) {
       
-
+     //mappar igenom json data och pushar upp 10st url's i apiarrayen
      data.map(photo => {
          
           let result = `${photo.urls.small}`;
@@ -55,37 +50,20 @@ uploadBtn.addEventListener("click" , newProduct);
       });
       
   });
+  // Använder getRandom funktionen för att välja en random url i arrayen och returnera den, så att vi kan använda den i newProduct funktionen
   let randomNum = getRandom(0,9);
   console.log(apiArray[randomNum]);
   return apiArray[randomNum];
   
 }  
 
-
-/* async function addToCart () {
-
-  let imgUrl = await searchPhotos();
- let obj = {
-     imageUrl: imgUrl,
-     name: "shoer"
- }
-
- console.log(obj)
-} */
-
-/* // klicklyssnare
-addToCart() */
-
 // funktion som returnerar ett random nummer mellan min och max
-
 
 function getRandom (min , max){
   return Math.floor(Math.random()*(max-min))+min;
 }   
 
-// Function för att pusha allt till array när uploadknappen är klickad
-//async
-
+// Funktion för att skapa en ny produkt, måste vara async för att api ska fungera, preventdefault för att den ligger i en form tag
 let productItem = {};
 
 async function newProduct(e){ 
@@ -93,7 +71,6 @@ async function newProduct(e){
   console.log(e);
   //if statement för att alla fält måste vara ifyllda
 if(!addTitle.value || !addInfo.value || !addPrice.value) return;
-  // spara allt i PRODUCT_LIST
   //parseInt för att få price till Number
   let imgUrl = await searchPhotos(e);
   
@@ -102,8 +79,10 @@ if(!addTitle.value || !addInfo.value || !addPrice.value) return;
       productItem.description = addInfo.value;
       productItem.price = parseInt(addPrice.value);
   
+  //Pusha productItem objectet till PRODUCT_list    
   PRODUCT_LIST.push(productItem);
-   console.log(productItem);
+
+  //Kolla om det finns produkter i localstorage, om det finns concat array annars lägg till i PRODUCT_LIST
   const localProductData = localStorage.getItem("productList");
 
   const existingProductData = JSON.parse(localProductData);
@@ -112,9 +91,9 @@ if(!addTitle.value || !addInfo.value || !addPrice.value) return;
 
   localStorage.setItem("productList", JSON.stringify(cleanedProductData)); 
 
-  
+  //Rensa inputfälten
   clearInput( [addTitle, addInfo, addPrice] );
-
+  //Uppdatera sidan för att localstorage ska visas och api ska fungera
   location.reload();
   
 }
@@ -140,10 +119,10 @@ function deleteEditCart(event){
 }
 
 
-// delete och edit och addToCart functions
+// delete och edit och addToCart funktioner
 
 
-//delete function för att tabort rätt product i arrayen, väljer efter id
+//delete function för att tabort rätt product i localstorage, väljer efter id och sparar sen igen. Location reload för att uppdatera sidan.
 function deleteProduct(product){
   PRODUCT_LIST = JSON.parse(localStorage.getItem("productList"));
   PRODUCT_LIST.splice( product.id, 1);
@@ -173,54 +152,33 @@ function localStorageCart(product){
   let productPrice = product.querySelector(".product_price");
   let productImg = product.querySelector(".product_img");
   
+  cartItem.img = productImg.src;
   cartItem.title = productTitle.innerHTML
   cartItem.price = parseInt(productPrice.innerHTML)
-
-
+  
+  //Pushar cartItem objektet till SHOPPING_CART
   SHOPPING_CART.push(cartItem);
-
+  
+  //Kolla om det finns produkter i localstorage, om det finns concat array annars lägg till i SHOPPING_CART
   const localData = localStorage.getItem("cartList");
 
   const existingData = JSON.parse(localData);
-
-  console.log(existingData)
 
   const cleanedData = existingData ? existingData.concat(SHOPPING_CART) : SHOPPING_CART ;
 
   localStorage.setItem("cartList", JSON.stringify(cleanedData)); 
 
 
-  /* showCart(); */
+  // location reload för att uppdatera sidan så att localstorage fungerar
 
   location.reload();
   
 }
 
 
-/* function updateUI(){
-
-  
-
-    //Rensar input fälten i productDiv
-    clearElement( [productDiv] ) ;
-  
-    //kör showproduct function och visar den i productDiv, index för att få id på varje produkt
-    PRODUCT_LIST.forEach( (product, index) => {
-      showproduct(productDiv, product.title, product.description, product.price, index)
-  
-    })
-  
-  
-    //sparar product på local storage
-    localStorage.setItem("PRODUCT_LIST", JSON.stringify(PRODUCT_LIST));
-    
-  
-  
-  } */
-
-// Showproduct function
+// showProduct function
  
-function showproduct(){
+function showProduct(){
   
   const productData = localStorage.getItem("productList")
   const parsedProductData = JSON.parse(productData)
@@ -235,30 +193,11 @@ function showproduct(){
                         <button id="addCartBtn">Lägg till i varukorg</button>
                         <button id="edit">edit</button>
                         <button id="delete">delete</button>
-                  
-    
-    
-    
-                   </div>`;
-  
-    // afterbegin för att få senast tillagda product först               
-    //const position = "afterbegin";
-  
-   // div.insertAdjacentHTML(position, product);
+                        </div>`;
   })
 } 
 
-  
-
-function clearElement(elements){
-    elements.forEach ( element => {
-      element.innerHTML = "";
-  
-    })
-}
-  
-  
-  
+// Anvönds i newProduct för att rensa inputfälten
 function clearInput(inputs){
     inputs.forEach( input => {
       input.value = "";
@@ -285,7 +224,7 @@ window.onclick = function(event) {
   }
 }
 
-function addToCart() {
+function showCart() {
   const data = localStorage.getItem("cartList")
   const parsedData = JSON.parse(data)
   const itemContainer = document.querySelector(".cart-items")
@@ -302,8 +241,16 @@ function addToCart() {
   })
 }
 
+//If statement som bara kör showProduct om det finns en produkt sparad i localstorage.
+
 let products = JSON.parse(localStorage.getItem("productList"))
-console.log(products)
 if(products.length>0){
-showproduct();
+showProduct();
+}
+
+//If statement som bara kör addToCart om det finns en produkt sparad i localstorage.
+
+let productsInCart = JSON.parse(localStorage.getItem("cartList"))
+if(productsInCart.length>0){
+  showCart();
 }
